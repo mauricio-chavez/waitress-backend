@@ -8,13 +8,22 @@ from graphql_jwt.decorators import login_required
 from graphql import GraphQLError
 
 from .decorators import check_user_in_session
+from .models import SessionUser
 from waitress.items.schema import PersonalItemType
 from waitress.items.models import PersonalItem
 
 
 class UserType(DjangoObjectType):
+    """User object for GraphQL"""
     class Meta:
         model = get_user_model()
+
+
+class SessionUserType(DjangoObjectType):
+    """SessionUser object for GraphQL"""
+    
+    class Meta:
+        model = SessionUser
 
 
 class Query(graphene.ObjectType):

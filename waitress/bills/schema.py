@@ -71,7 +71,7 @@ class EndUpSession(graphene.Mutation):
             personal_bills.append(
                 PersonalBill.objects.create(
                     user=user,
-                    total_amount=total_personal
+                    total_amount=total_personal + total_per_person
                 )
             )
             total_amount += total_personal

@@ -10,6 +10,7 @@ from waitress.items.models import SharedItem
 from waitress.items.schema import SharedItemType
 from waitress.users.decorators import check_user_in_session
 from waitress.users.models import SessionUser
+from waitress.users.schema import SessionUserType
 
 
 class FoodSessionType(DjangoObjectType):
@@ -57,6 +58,35 @@ class CreateFoodSession(graphene.Mutation):
         return CreateFoodSession(food_session=food_session)
 
 
+class EnterToSession(graphene.Mutation):
+    """Mutation that adds a user to a session"""
+    session_user = graphene.Field(SessionUserType)
+
+    class Arguments:
+        """Args that are allowed in mutation"""
+        session_id = graphene.Int(required=True)
+
+    @login_required
+    def mutate(self, info, session_id):
+        """Adds a user to a food session"""
+        user = info.context.user
+        session_queryset = FoodSession.objects.filter(pk=session_id)
+        if not session_queryset.exists():
+            raise GraphQLError("The session you are trying to enter doesn't exists.")
+        user_in_session = SessionUser.objects.filter(
+            user=user,
+            is_active=True
+        ).exists()
+        if user_in_session:
+            raise GraphQLError('You already are in an active session.')
+        food_session = session_queryset.get()
+        session_user = SessionUser.objects.create(
+            user=user, food_session=food_session, is_active=True
+        )
+        return EnterToSession(session_user=session_user)
+
+
 class Mutation:
     """Mutation object for sessions app"""
     create_food_session = CreateFoodSession.Field()
+    enter_to_session = EnterToSession.Field()

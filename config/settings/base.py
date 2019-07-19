@@ -57,9 +57,10 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     'waitress.core.apps.CoreConfig',
-    'waitress.food_sessions.apps.FoodSessionsConfig',
     'waitress.users.apps.UsersConfig',
+    'waitress.food_sessions.apps.FoodSessionsConfig',
     'waitress.items.apps.ItemsConfig',
+    'waitress.bills.apps.BillsConfig',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

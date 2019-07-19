@@ -18,3 +18,7 @@ class SessionUser(models.Model):
         to=FoodSession,
         on_delete=models.CASCADE
     )
+    is_active = models.BooleanField(
+        verbose_name='activo',
+        default=False
+    )

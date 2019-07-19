@@ -13,7 +13,6 @@ class FoodSession(models.Model):
         to=get_user_model(),
         on_delete=models.CASCADE,
     )
-    total_amount = models.FloatField('monto total', blank=True, default=0)
     created = models.DateTimeField('fecha de creacion', auto_now=True)
     last_modified = models.DateTimeField(
         verbose_name='última modificación',

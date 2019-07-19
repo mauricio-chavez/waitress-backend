@@ -18,7 +18,7 @@ class Query(graphene.ObjectType):
 
     @login_required
     def resolve_hello_authenticated(self, info, **kwargs):
-        return f'Hello, { info.context.user.email }'
+        return f'Hello, { info.context.user.first_name }'
 
 
 class Mutation(UserMutation, ItemsMutation, graphene.ObjectType):

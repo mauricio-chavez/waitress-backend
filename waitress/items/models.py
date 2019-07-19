@@ -4,6 +4,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 
 from waitress.food_sessions.models import FoodSession
+from waitress.users.models import SessionUser
 
 
 class Item(models.Model):
@@ -18,7 +19,7 @@ class Item(models.Model):
 class PersonalItem(models.Model):
     """Model of an item with a owner"""
     item = models.OneToOneField('Item', on_delete=models.CASCADE)
-    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    owner = models.ForeignKey(SessionUser, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = 'artículo personal'

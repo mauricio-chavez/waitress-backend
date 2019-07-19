@@ -1,14 +1,12 @@
 """Core app urls"""
 
 from django.urls import path
-from django.http import JsonResponse
 
 
 def index(request):
     """Example page"""
-    return JsonResponse({
-        "message": "Yes, I'm working, bitch"
-    })
+    from django.shortcuts import render
+    return render(request, 'index.html')
 
 
 urlpatterns = [

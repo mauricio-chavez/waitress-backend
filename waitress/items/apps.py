@@ -13,4 +13,5 @@ class ItemsConfig(AppConfig):
 
     def ready(self):
         """Connects the presave signal with item model"""
-        pre_save.connect(add_emoji_to_pizza, sender='items.Item')
+        pre_save.connect(add_emoji_to_pizza, sender='items.PersonalItem')
+        pre_save.connect(add_emoji_to_pizza, sender='items.SharedItem')

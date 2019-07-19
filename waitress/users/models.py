@@ -22,3 +22,11 @@ class SessionUser(models.Model):
         verbose_name='activo',
         default=False
     )
+
+    class Meta:
+        verbose_name = 'usuario de sesión'
+        verbose_name_plural = 'usuarios de sesión'
+
+    def __str__(self):
+        """Returns a string representation of a session user"""
+        return f'{self.user.email} en {self.food_session.name}'

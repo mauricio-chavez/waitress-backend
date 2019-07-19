@@ -1,0 +1,21 @@
+# Base
+Django>=2.2.3,<2.3.0
+psycopg2>=2.7.4 --no-binary psycopg2
+django-admin-interface>=0.10.5,<0.11.0
+
+# GraphQL
+django-filter>=2.2.0,<2.3.0
+django-graphql-jwt>=0.2.1,<0.3.0
+graphene-django>=2.4.0,<2.5.0
+
+# Environment
+django-environ>=0.4.5,<0.5.0
+
+# Passwords security
+argon2-cffi>=18.3.0,<18.4.0
+
+# Static files
+whitenoise>=4.1.2,<4.2.0
+
+# HTML minify
+django-htmlmin>=0.11.0,<0.12.0

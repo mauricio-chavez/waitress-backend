@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import environ
+from datetime import timedelta
 
 BASE_DIR = Path(__file__).parent.parent.parent
 APPS_DIR = BASE_DIR / 'waitress'
@@ -51,6 +52,7 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     'graphene_django',
+    'corsheaders',
 ]
 
 LOCAL_APPS = [
@@ -92,6 +94,7 @@ MIDDLEWARE = [
     'htmlmin.middleware.MarkRequestMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -151,7 +154,6 @@ SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = 'DENY'
 
 # Admin
-
 ADMINS = [
     # ("""Mauricio Chávez""", 'me@mauriciochavez.dev'),
 ]
@@ -164,9 +166,27 @@ INSTALLED_APPS.insert(1, 'colorfield')
 # Authentication
 AUTH_USER_MODEL = 'core.User'
 
+AUTHENTICATION_BACKENDS = [
+    'graphql_jwt.backends.JSONWebTokenBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 # GraphQL
-
 GRAPHENE = {
     'SCHEMA': 'config.schema.schema',
+    'MIDDLEWARE': [
+        'graphql_jwt.middleware.JSONWebTokenMiddleware',
+    ],
 }
+
+GRAPHQL_JWT = {
+    'JWT_VERIFY_EXPIRATION': True,
+    'JWT_EXPIRATION_DELTA': timedelta(minutes=10),
+}
+
+# CORS
+
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_WHITELIST = [
+
+]

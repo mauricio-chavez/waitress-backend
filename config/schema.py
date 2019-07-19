@@ -5,6 +5,7 @@ import graphql_jwt
 from graphql_jwt.decorators import login_required
 
 from waitress.users.schema import Mutation as UserMutation
+from waitress.items.schema import Mutation as ItemsMutation
 
 
 class Query(graphene.ObjectType):
@@ -20,7 +21,7 @@ class Query(graphene.ObjectType):
         return f'Hello, { info.context.user.email }'
 
 
-class Mutation(UserMutation, graphene.ObjectType):
+class Mutation(UserMutation, ItemsMutation, graphene.ObjectType):
     """Mutation Object for project Schema"""
     token_auth = graphql_jwt.ObtainJSONWebToken.Field()
     verify_token = graphql_jwt.Verify.Field()

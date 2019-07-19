@@ -168,5 +168,5 @@ AUTH_USER_MODEL = 'core.User'
 # GraphQL
 
 GRAPHENE = {
-    'SCHEMA': 'waitress.core.schema.schema',
+    'SCHEMA': 'config.schema.schema',
 }

@@ -1,7 +1,6 @@
 """Items app models"""
 
 from django.db import models
-from django.contrib.auth import get_user_model
 
 from waitress.food_sessions.models import FoodSession
 from waitress.users.models import SessionUser
@@ -16,14 +15,14 @@ class Item(models.Model):
         abstract = True
         verbose_name = 'artículo'
 
-    def __str__(self):
-        """Returns a string representation of a item"""
-        return f'{self.name} - ${self.amount}'
-
 
 class PersonalItem(Item):
     """Model of an item with a owner"""
-    owner = models.ForeignKey(SessionUser, on_delete=models.CASCADE)
+    owner = models.ForeignKey(
+        verbose_name='propietario',
+        to=SessionUser,
+        on_delete=models.CASCADE
+    )
 
     class Meta:
         verbose_name = 'artículo personal'
@@ -31,12 +30,16 @@ class PersonalItem(Item):
 
     def __str__(self):
         """Returns a string representation of a item"""
-        return f'{self.item.name} de {self.owner.user.email}'
+        return f'{self.name} de {self.owner.user.email}'
 
 
 class SharedItem(Item):
     """Model of a shared item"""
-    food_session = models.ForeignKey(FoodSession, on_delete=models.CASCADE)
+    food_session = models.ForeignKey(
+        verbose_name='sesión de comida',
+        to=FoodSession,
+        on_delete=models.CASCADE
+    )
 
     class Meta:
         verbose_name = 'artículo compartido'
@@ -44,4 +47,4 @@ class SharedItem(Item):
 
     def __str__(self):
         """Returns a string representation of a item"""
-        return f'{self.item.name} en {self.food_session.name}'
+        return f'{self.name} en {self.food_session.name}'

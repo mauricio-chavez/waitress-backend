@@ -4,12 +4,27 @@ from django.contrib.auth import get_user_model
 
 import graphene
 from graphene_django import DjangoObjectType
+from graphql_jwt.decorators import login_required
 from graphql import GraphQLError
+
+from .decorators import check_user_in_session
+from waitress.items.schema import PersonalItemType
+from waitress.items.models import PersonalItem
 
 
 class UserType(DjangoObjectType):
     class Meta:
         model = get_user_model()
+
+
+class Query(graphene.ObjectType):
+    """Query Object for users Schema"""
+    user_items = graphene.List(PersonalItemType, required=True)
+
+    @login_required
+    @check_user_in_session
+    def resolve_user_items(self, info, session_user, **kwargs):
+        return PersonalItem.objects.filter(owner=session_user)
 
 
 class CreateUser(graphene.Mutation):
@@ -24,11 +39,12 @@ class CreateUser(graphene.Mutation):
     def mutate(self, info, email, **kwargs):
         user_exists = get_user_model().objects.filter(email=email).exists()
         if user_exists:
-            raise GraphQLError('User already exists!')
+            raise GraphQLError('User already exists.')
         user = get_user_model().objects.create_user(email=email, **kwargs)
 
         return CreateUser(user=user)
 
 
 class Mutation:
+    """Mutation object for users schema"""
     create_user = CreateUser.Field()

@@ -6,6 +6,9 @@ from graphql_jwt.decorators import login_required
 from graphql import GraphQLError
 
 from .models import FoodSession
+from waitress.items.models import SharedItem
+from waitress.items.schema import SharedItemType
+from waitress.users.decorators import check_user_in_session
 from waitress.users.models import SessionUser
 
 
@@ -13,6 +16,17 @@ class FoodSessionType(DjangoObjectType):
     """Food Session object for GraphQL"""
     class Meta:
         model = FoodSession
+
+
+class Query(graphene.ObjectType):
+    """Query Object for users Schema"""
+    session_items = graphene.List(SharedItemType, required=True)
+
+    @login_required
+    @check_user_in_session
+    def resolve_session_items(self, info, session_user, **kwargs):
+        food_session = session_user.food_session
+        return SharedItem.objects.filter(food_session=food_session)
 
 
 class CreateFoodSession(graphene.Mutation):

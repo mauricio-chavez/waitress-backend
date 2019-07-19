@@ -3,21 +3,27 @@
 import graphene
 from graphene_django import DjangoObjectType
 from graphql_jwt.decorators import login_required
+from graphql import GraphQLError
 
-from .decorators import check_user_in_session
-from .models import Item, PersonalItem, SharedItem
-from waitress.users.models import SessionUser
+from .models import PersonalItem, SharedItem
+from waitress.users.decorators import check_user_in_session
 
 
-class ItemType(DjangoObjectType):
-    """Item object for GraphQL"""
+class PersonalItemType(DjangoObjectType):
+    """PersonalItem object for GraphQL"""
     class Meta:
-        model = Item
+        model = PersonalItem
+
+
+class SharedItemType(DjangoObjectType):
+    """SharedItem object for GraphQL"""
+    class Meta:
+        model = SharedItem
 
 
 class AddPersonalItem(graphene.Mutation):
     """Mutation that creates a personal item"""
-    item = graphene.Field(ItemType)
+    personal_item = graphene.Field(PersonalItemType)
 
     class Arguments:
         """Args that are allowed in mutation"""
@@ -26,17 +32,15 @@ class AddPersonalItem(graphene.Mutation):
 
     @login_required
     @check_user_in_session
-    def mutate(self, info, session_user_queryset, **kwargs):
+    def mutate(self, info, session_user, **kwargs):
         """Creates an item"""
-        session_user = session_user_queryset.get()
-        item = Item.objects.create(**kwargs)
-        PersonalItem.objects.create(item=item, owner=session_user)
-        return AddPersonalItem(item=item)
+        item = PersonalItem.objects.create(owner=session_user, **kwargs)
+        return AddPersonalItem(personal_item=item)
 
 
 class AddSharedItem(graphene.Mutation):
     """Mutation that creates a shared item"""
-    item = graphene.Field(ItemType)
+    shared_item = graphene.Field(SharedItemType)
 
     class Arguments:
         """Args that are allowed in mutation"""
@@ -45,17 +49,16 @@ class AddSharedItem(graphene.Mutation):
 
     @login_required
     @check_user_in_session
-    def mutate(self, info, session_user_queryset, **kwargs):
+    def mutate(self, info, session_user, **kwargs):
         """Creates an item"""
-        food_session = session_user_queryset.get().food_session
-        item = Item.objects.create(**kwargs)
-        SharedItem.objects.create(item=item, food_session=food_session)
-        return AddSharedItem(item=item)
+        food_session = session_user.food_session
+        item = SharedItem.objects.create(food_session=food_session, **kwargs)
+        return AddSharedItem(shared_item=item)
 
 
-class DeleteSharedItem(graphene.Mutation):
-    """Mutation that deletes a shared item"""
-    item = graphene.Field(ItemType)
+class DeletePersonalItem(graphene.Mutation):
+    """Mutation that deletes a personal item"""
+    personal_item = graphene.Field(PersonalItemType)
 
     class Arguments:
         """Args that are allowed in mutation"""
@@ -63,16 +66,43 @@ class DeleteSharedItem(graphene.Mutation):
 
     @login_required
     @check_user_in_session
-    def mutate(self, info, session_user_queryset, **kwargs):
-        """Creates an item"""
-        food_session = session_user_queryset.get().food_session
-        item = Item.objects.create(**kwargs)
-        SharedItem.objects.create(item=item, food_session=food_session)
-        return DeleteSharedItem(item=item)
+    def mutate(self, info, item_id, **kwargs):
+        """Deletes a personal item"""
+        item_queryset = PersonalItem.objects.filter(id=item_id)
+        if not item_queryset.exists():
+            raise GraphQLError(
+                f"The personal item with the id {item_id} doesn't exists."
+            )
+        item = item_queryset.get()
+        item.delete()
+        return DeletePersonalItem(personal_item=item)
+
+
+class DeleteSharedItem(graphene.Mutation):
+    """Mutation that deletes a shared item"""
+    shared_item = graphene.Field(SharedItemType)
+
+    class Arguments:
+        """Args that are allowed in mutation"""
+        item_id = graphene.Int(required=True)
+
+    @login_required
+    @check_user_in_session
+    def mutate(self, info, item_id, **kwargs):
+        """Deletes a shared item"""
+        item_queryset = SharedItem.objects.filter(id=item_id)
+        if not item_queryset.exists():
+            raise GraphQLError(
+                f"The shared item with the id {item_id} doesn't exists."
+            )
+        item = item_queryset.get()
+        item.delete()
+        return DeleteSharedItem(shared_item=item)
 
 
 class Mutation:
     """Mutation object for items app"""
     add_personal_item = AddPersonalItem.Field()
     add_shared_item = AddSharedItem.Field()
+    delete_personal_item = DeletePersonalItem.Field()
     delete_shared_item = DeleteSharedItem.Field()
